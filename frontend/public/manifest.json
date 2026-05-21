@@ -1,0 +1,17 @@
+{
+  "name": "Ecofintec System",
+  "short_name": "Ecofintec",
+  "description": "Ecofintec Real Estate Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#0d1728",
+  "icons": [
+    {
+      "src": "/ecofintec-logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
