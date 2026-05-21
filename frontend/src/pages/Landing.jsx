@@ -6,16 +6,9 @@ import useIsMobile from '../hooks/useIsMobile';
 
 const MODULES = [
   { key: 'crm', icon: '📋', title: 'CRM', subtitle: 'Inquiries & Pipeline', desc: 'Manage client inquiries, track engagements through the pipeline, assign accountants and monitor your team.', bg: 'linear-gradient(135deg, #0f5132 0%, #0a3a24 100%)', type: 'active', path: '/crm' },
-  { key: 'partnerships', icon: '🤝', title: 'Partnerships', subtitle: 'Referral Outreach', desc: 'Manage referral partners, run WhatsApp & Email campaigns and track commission payouts.', bg: 'linear-gradient(135deg, #1F7A59 0%, #145740 100%)', type: 'restricted', path: '/partnerships' },
-  { key: 'clients', icon: '🏢', title: 'Clients', subtitle: 'Companies & Services', desc: 'UAE company profiles, TRN/CT/trade license, service engagements (Bookkeeping, VAT, CT, Payroll), tasks and deadlines.', bg: 'linear-gradient(135deg, #134e4a 0%, #0c3a36 100%)', type: 'active', path: '/clients' },
-  { key: 'agents', icon: '🧮', title: 'Accountants', subtitle: 'Team Workspace', desc: 'Accountant-facing dashboard for client services, deadlines and engagement work.', bg: 'linear-gradient(135deg, #14532d 0%, #0f3f24 100%)', type: 'active', path: '/agents' },
   { key: 'hr', icon: '👥', title: 'HR', subtitle: 'Human Resources', desc: 'Employee records, documents and identity management.', bg: 'linear-gradient(135deg, #1c3a3a 0%, #112e2e 100%)', type: 'restricted', path: '/hr' },
   { key: 'calendar', icon: '📅', title: 'Calendar', subtitle: 'Events & Deadlines', desc: 'Team events, client appointments and filing deadlines.', bg: 'linear-gradient(135deg, #155e63 0%, #0d4448 100%)', type: 'active', path: '/calendar' },
-  { key: 'ecards', icon: '💳', title: 'E-Business Cards', subtitle: 'Digital Cards & QR', desc: 'View and share digital business cards for the whole team.', bg: 'linear-gradient(135deg, #166534 0%, #0f4a25 100%)', type: 'active', path: '/ecards' },
   { key: 'settings', icon: '⚙️', title: 'Settings', subtitle: 'Account & Management', desc: 'View your account details, change your password, and manage system users.', bg: 'linear-gradient(135deg, #1e3a34 0%, #122620 100%)', type: 'active', path: '/settings' },
-  { key: 'services', icon: '📂', title: 'Client Services', subtitle: 'Bookkeeping, VAT, Tax', desc: 'Practice-wide view of every engagement — bookkeeping, VAT filing, corporate tax, payroll and audit — filterable by type, status and recurrence.', bg: 'linear-gradient(135deg, #1a3a1a 0%, #112811 100%)', type: 'active', path: '/services' },
-  { key: 'documents', icon: '📑', title: 'Documents', subtitle: 'Secure Client Files', desc: 'Client document vault — upload, search, download via signed links and review access audit trails, scoped to the clients you can see.', bg: 'linear-gradient(135deg, #1f3d2e 0%, #14291f 100%)', type: 'active', path: '/documents' },
-  { key: 'billing', icon: '💰', title: 'Billing', subtitle: 'Invoices & Retainers', desc: 'UAE VAT invoices, payment tracking, recurring retainers and revenue/aging reports.', bg: 'linear-gradient(135deg, #15803d 0%, #0e5a2b 100%)', type: 'active', path: '/billing' },
 ];
 
 const ROLE_LABELS = {
