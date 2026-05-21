@@ -5,10 +5,38 @@ import api from '../api';
 import useIsMobile from '../hooks/useIsMobile';
 
 const MODULES = [
-  { key: 'crm', icon: '📋', title: 'CRM', subtitle: 'Inquiries & Pipeline', desc: 'Manage client inquiries, track engagements through the pipeline, assign accountants and monitor your team.', bg: 'linear-gradient(135deg, #0f5132 0%, #0a3a24 100%)', type: 'active', path: '/crm' },
-  { key: 'hr', icon: '👥', title: 'HR', subtitle: 'Human Resources', desc: 'Employee records, documents and identity management.', bg: 'linear-gradient(135deg, #1c3a3a 0%, #112e2e 100%)', type: 'restricted', path: '/hr' },
-  { key: 'calendar', icon: '📅', title: 'Calendar', subtitle: 'Events & Deadlines', desc: 'Team events, client appointments and filing deadlines.', bg: 'linear-gradient(135deg, #155e63 0%, #0d4448 100%)', type: 'active', path: '/calendar' },
-  { key: 'settings', icon: '⚙️', title: 'Settings', subtitle: 'Account & Management', desc: 'View your account details, change your password, and manage system users.', bg: 'linear-gradient(135deg, #1e3a34 0%, #122620 100%)', type: 'active', path: '/settings' },
+  {
+    key: 'crm', num: '01', icon: '📋', title: 'CRM',
+    subtitle: 'Inquiries & Pipeline',
+    desc: 'Manage client inquiries, track engagements through the pipeline and monitor your team.',
+    bg: 'linear-gradient(145deg,#0f2d1c,#071a10)', orbColor: '#3FB389', accentColor: '#3FB389',
+    btnBg: 'rgba(63,179,137,0.12)',
+    type: 'active', path: '/crm',
+  },
+  {
+    key: 'calendar', num: '02', icon: '📅', title: 'Calendar',
+    subtitle: 'Events & Deadlines',
+    desc: 'Team events, client appointments and filing deadlines all in one place.',
+    bg: 'linear-gradient(145deg,#0d2e30,#071c1e)', orbColor: '#0d9488', accentColor: '#0d9488',
+    btnBg: 'rgba(13,148,136,0.12)',
+    type: 'active', path: '/calendar',
+  },
+  {
+    key: 'hr', num: '03', icon: '👥', title: 'HR',
+    subtitle: 'Human Resources',
+    desc: 'Employee records, documents and full identity management for your team.',
+    bg: 'linear-gradient(145deg,#122020,#0a1515)', orbColor: '#2d9b9b', accentColor: '#2d9b9b',
+    btnBg: 'rgba(45,155,155,0.12)',
+    type: 'restricted', path: '/hr',
+  },
+  {
+    key: 'settings', num: '04', icon: '⚙️', title: 'Settings',
+    subtitle: 'Account & Management',
+    desc: 'View your account, change your password and manage system users.',
+    bg: 'linear-gradient(145deg,#141e1a,#0c1410)', orbColor: '#1F7A59', accentColor: '#3FB389',
+    btnBg: 'rgba(63,179,137,0.12)',
+    type: 'active', path: '/settings',
+  },
 ];
 
 const ROLE_LABELS = {
@@ -23,21 +51,55 @@ const ROLE_LABELS = {
 
 function Modal({ title, message, color, onClose }) {
   return (
-    <div onClick={onClose} className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4">
-      <div onClick={e => e.stopPropagation()} className="max-w-sm rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-12 py-10 text-center shadow-2xl"
-        style={{ borderTop: `4px solid ${color}` }}>
-        <div className="mb-4 text-[44px]">{title === 'No Permission' ? '🔒' : '🚧'}</div>
-        <div className="mb-2.5 text-xl font-extrabold text-[var(--text)]">{title}</div>
-        <div className="mb-7 text-sm leading-relaxed text-[var(--text-muted)]">{message}</div>
-        <button onClick={onClose} className="rounded-lg px-8 py-2.5 text-sm font-bold text-white" style={{ background: color }}>
-          Got it
-        </button>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.5)', padding: 16 }}>
+      <div onClick={e => e.stopPropagation()} style={{ maxWidth: 360, borderRadius: 20, borderTop: `4px solid ${color}`, background: 'var(--surface)', padding: '40px 48px', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+        <div style={{ fontSize: 44, marginBottom: 16 }}>{title === 'No Permission' ? '🔒' : '🚧'}</div>
+        <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', marginBottom: 10 }}>{title}</div>
+        <div style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 28 }}>{message}</div>
+        <button onClick={onClose} style={{ background: color, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 32px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Got it</button>
       </div>
     </div>
   );
 }
 
 const signOut = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = '/login'; };
+
+function ModuleCard({ mod, onClick, user }) {
+  const [hovered, setHovered] = useState(false);
+  const isLocked = mod.type === 'restricted' && user?.role !== 'admin' && !(user?.role === 'hr_admin' && mod.key === 'hr');
+
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        borderRadius: 20, padding: '28px 24px', cursor: 'pointer', position: 'relative', overflow: 'hidden',
+        minHeight: 210, display: 'flex', flexDirection: 'column',
+        background: mod.bg, border: '1px solid rgba(255,255,255,0.06)',
+        transform: hovered ? 'translateY(-5px)' : 'none',
+        boxShadow: hovered ? '0 24px 60px rgba(0,0,0,0.25)' : 'none',
+        transition: 'transform 0.2s, box-shadow 0.2s',
+      }}
+    >
+      <div style={{ position: 'absolute', bottom: -30, right: -30, width: 110, height: 110, borderRadius: '50%', background: mod.orbColor, opacity: 0.18, pointerEvents: 'none' }} />
+      {isLocked && (
+        <div style={{ position: 'absolute', top: 14, right: 14, fontSize: 9, fontWeight: 800, letterSpacing: 0.8, textTransform: 'uppercase', padding: '3px 9px', borderRadius: 8, background: 'rgba(217,119,6,0.15)', color: '#F59E0B' }}>Admin Only</div>
+      )}
+      <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.18)', letterSpacing: 3, marginBottom: 18 }}>{mod.num}</div>
+      <div style={{ fontSize: 30, marginBottom: 14 }}>{mod.icon}</div>
+      <div style={{ fontSize: 19, fontWeight: 900, color: '#fff', letterSpacing: -0.4, marginBottom: 4 }}>{mod.title}</div>
+      <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10, opacity: 0.55, color: mod.accentColor }}>{mod.subtitle}</div>
+      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.65, flex: 1 }}>{mod.desc}</div>
+      <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <button style={{ fontSize: 11, fontWeight: 800, padding: '7px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', background: mod.btnBg, color: mod.accentColor }}>
+          Open {mod.title} →
+        </button>
+        <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }}>›</span>
+      </div>
+    </div>
+  );
+}
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -68,23 +130,15 @@ export default function Landing() {
       setModal({ title: 'No Permission', message: "You don't have permission to access this module. Contact your administrator.", color: '#1F7A59' });
       return;
     }
-    if (mod.type === 'coming_soon') {
-      setModal({ title: 'Under Development', message: `The ${mod.title} module is currently being built and will be available soon.`, color: '#5C6B64' });
-    }
   };
 
-  const statItems = [
-    { label: 'Active Inquiries', value: stats.leads, fill: '#3FB389', pct: '70%' },
-    { label: 'Referral Partners', value: stats.partners, fill: '#2E9B72', pct: '55%' },
-    { label: 'Team Members', value: stats.team, fill: '#1F7A59', pct: '40%' },
+  const heroStats = [
+    { label: 'Active Inquiries', value: stats.leads },
+    { label: 'Referral Partners', value: stats.partners },
+    { label: 'Team Members', value: stats.team },
   ];
 
-  const roleBadge = (
-    <span className="inline-block rounded-full border border-accent-light/30 bg-accent-light/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-accent-light">
-      {ROLE_LABELS[user?.role] || user?.role}
-    </span>
-  );
-
+  // ── MOBILE ──────────────────────────────────────────────
   if (isMobile) {
     return (
       <div className="flex min-h-screen flex-col bg-page dark:bg-surface-dark">
@@ -107,13 +161,15 @@ export default function Landing() {
               <div className="mb-0.5 text-[13px] text-white/40">Welcome back</div>
               <div className="text-xl font-extrabold text-white">{user?.full_name}</div>
             </div>
-            {roleBadge}
+            <span className="inline-block rounded-full border border-accent-light/30 bg-accent-light/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-accent-light">
+              {ROLE_LABELS[user?.role] || user?.role}
+            </span>
           </div>
 
           <div className="mt-3.5 flex gap-2.5">
-            {[{ label: 'Inquiries', value: stats.leads, color: '#7CD9B0' }, { label: 'Partners', value: stats.partners, color: '#5BC79A' }, { label: 'Team', value: stats.team, color: '#9FE7C6' }].map(s => (
+            {[{ label: 'Inquiries', value: stats.leads }, { label: 'Partners', value: stats.partners }, { label: 'Team', value: stats.team }].map(s => (
               <div key={s.label} className="flex-1 rounded-xl border border-white/[0.07] bg-white/5 px-2 py-2.5 text-center">
-                <div className="text-lg font-black" style={{ color: s.color }}>{s.value}</div>
+                <div className="text-lg font-black text-accent-light">{s.value}</div>
                 <div className="mt-0.5 text-[10px] text-white/40">{s.label}</div>
               </div>
             ))}
@@ -124,22 +180,20 @@ export default function Landing() {
           <div className="mb-3.5 text-[11px] font-bold uppercase tracking-[2px] text-[var(--text-muted)]">Select a module</div>
           <div className="flex flex-col gap-3">
             {MODULES.map(mod => {
-              const isComingSoon = mod.type === 'coming_soon';
               const isLocked = mod.type === 'restricted' && user?.role !== 'admin' && !(user?.role === 'hr_admin' && mod.key === 'hr');
               return (
                 <div key={mod.key} onClick={() => handleClick(mod)}
-                  className={`flex min-h-20 items-center gap-4 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-5 py-5 shadow-soft ${isComingSoon ? 'cursor-default opacity-60' : 'cursor-pointer'}`}>
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-2xl shadow-sm" style={{ background: mod.bg }}>{mod.icon}</div>
+                  style={{ background: mod.bg }}
+                  className="flex min-h-20 items-center gap-4 overflow-hidden rounded-2xl border border-white/[0.06] px-5 py-5 cursor-pointer">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-2xl">{mod.icon}</div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-base font-black tracking-tight text-[var(--text)]">{mod.title}</div>
-                    <div className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-accent">{mod.subtitle}</div>
+                    <div className="text-base font-black tracking-tight text-white">{mod.title}</div>
+                    <div className="mt-0.5 text-[10px] font-bold uppercase tracking-wide" style={{ color: mod.accentColor }}>{mod.subtitle}</div>
                   </div>
-                  {isComingSoon ? (
-                    <div className="shrink-0 rounded-[10px] bg-[var(--surface-2)] px-2 py-1 text-[9px] font-extrabold uppercase tracking-wide text-[var(--text-muted)]">Soon</div>
-                  ) : isLocked ? (
+                  {isLocked ? (
                     <div className="shrink-0 text-base">🔒</div>
                   ) : (
-                    <div className="shrink-0 text-lg text-[var(--text-muted)]">›</div>
+                    <div className="shrink-0 text-lg text-white/30">›</div>
                   )}
                 </div>
               );
@@ -150,74 +204,73 @@ export default function Landing() {
     );
   }
 
+  // ── DESKTOP ──────────────────────────────────────────────
   return (
-    <div className="flex min-h-screen bg-page dark:bg-surface-dark">
+    <div style={{ minHeight: '100vh', background: 'var(--page-bg, #FAFBFA)', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
       {modal && <Modal {...modal} onClose={() => setModal(null)} />}
 
-      <aside className="sticky top-0 flex h-screen w-[300px] shrink-0 flex-col bg-gradient-to-b from-primary to-primary-dark px-8 py-11">
-        <div className="mb-1.5 flex items-center gap-3">
-          <div className="flex h-[42px] w-[42px] items-center justify-center rounded-xl bg-gradient-to-br from-accent-light to-accent text-lg font-black text-white shadow-lg shadow-accent/30">E</div>
-          <div className="text-xl font-black tracking-tight text-white">Ecofintec Accounting</div>
+      {/* Top Nav */}
+      <nav style={{ background: 'var(--surface, #fff)', borderBottom: '1px solid var(--border, #E8EDE9)', padding: '0 48px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 9, background: '#0A2E1E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900, color: '#3FB389' }}>E</div>
+          <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--text, #0A2E1E)', letterSpacing: '-0.2px' }}>Ecofintec Accounting</div>
+          <div style={{ width: 1, height: 20, background: 'var(--border, #E8EDE9)' }} />
+          <div style={{ fontSize: 13, color: 'var(--text-muted, #9CA3AF)' }}>Dashboard</div>
         </div>
-        <div className="mb-9 pl-[54px] text-[9px] uppercase tracking-[3px] text-accent-light">Accounting Firm CRM</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text, #0A2E1E)' }}>{user?.full_name}</div>
+            <div style={{ fontSize: 10, color: '#1F7A59', fontWeight: 600 }}>{ROLE_LABELS[user?.role] || user?.role}</div>
+          </div>
+          <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg,#1F7A59,#3FB389)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: '#fff' }}>
+            {user?.full_name?.[0]?.toUpperCase() || 'U'}
+          </div>
+          <button onClick={signOut} style={{ padding: '7px 14px', background: 'var(--surface-2, #F3F6F4)', border: 'none', borderRadius: 8, fontSize: 12, color: 'var(--text-muted, #6B7280)', cursor: 'pointer', fontWeight: 600 }}>
+            Sign out
+          </button>
+        </div>
+      </nav>
 
-        <div className="mb-7 h-0.5 w-8 rounded bg-accent-light/40" />
-
-        <div className="mb-1.5 text-[11px] uppercase tracking-[2px] text-white/35">Logged in as</div>
-        <div className="mb-2.5 text-2xl font-extrabold tracking-tight text-white">{user?.full_name}</div>
-        <div className="mb-9">{roleBadge}</div>
-
-        <div className="mb-auto">
-          {statItems.map(s => (
-            <div key={s.label} className="mb-5">
-              <div className="mb-1.5 flex justify-between">
-                <span className="text-[11px] text-white/35">{s.label}</span>
-                <span className="text-[15px] font-extrabold text-white">{s.value}</span>
-              </div>
-              <div className="h-[3px] overflow-hidden rounded bg-white/[0.07]">
-                <div className="h-full rounded transition-all duration-700" style={{ width: s.pct, background: s.fill }} />
-              </div>
+      {/* Hero */}
+      <div style={{ background: '#0A2E1E', padding: '48px 48px 0', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: 'rgba(63,179,137,0.07)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: -60, left: '25%', width: 220, height: 220, borderRadius: '50%', background: 'rgba(63,179,137,0.04)', pointerEvents: 'none' }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(63,179,137,0.7)', letterSpacing: '2.5px', textTransform: 'uppercase', marginBottom: 10 }}>
+            Good morning, {user?.full_name?.split(' ')[0]}
+          </div>
+          <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', letterSpacing: '-0.8px', marginBottom: 6 }}>Ecofintec CRM</div>
+          <div style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.38)', marginBottom: 40 }}>
+            Your accounting firm management platform — all modules in one place.
+          </div>
+        </div>
+        <div style={{ display: 'flex' }}>
+          {heroStats.map((s, i) => (
+            <div key={s.label} style={{
+              padding: '18px 36px',
+              borderTop: '1px solid rgba(255,255,255,0.07)',
+              borderRight: '1px solid rgba(255,255,255,0.07)',
+              ...(i === 0 ? { borderLeft: '1px solid rgba(255,255,255,0.07)' } : {}),
+            }}>
+              <div style={{ fontSize: 26, fontWeight: 900, color: '#3FB389' }}>{s.value}</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{s.label}</div>
             </div>
           ))}
         </div>
+      </div>
 
-        <button onClick={signOut} className="w-full rounded-xl border border-white/[0.09] bg-white/[0.04] py-3 text-[13px] text-white/40 transition hover:bg-white/[0.08] hover:text-white/70">
-          ← Sign out
-        </button>
-      </aside>
-
-      <main className="flex-1 overflow-y-auto px-10 py-11">
-        <div className="mb-8">
-          <div className="mb-1.5 text-xs font-bold uppercase tracking-[2px] text-accent">Operations Hub</div>
-          <div className="text-[28px] font-black tracking-tight text-[var(--text)]">Select a module</div>
+      {/* Modules grid */}
+      <div style={{ padding: '36px 48px 48px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted, #9CA3AF)', letterSpacing: 2, textTransform: 'uppercase' }}>Modules</div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted, #9CA3AF)' }}>4 active</div>
         </div>
-
-        <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
-          {MODULES.map(mod => {
-            const isComingSoon = mod.type === 'coming_soon';
-            const isLocked = mod.type === 'restricted' && user?.role !== 'admin' && !(user?.role === 'hr_admin' && mod.key === 'hr');
-            return (
-              <div key={mod.key} onClick={() => handleClick(mod)}
-                className={`group relative flex min-h-[210px] flex-col overflow-hidden rounded-[18px] border border-[var(--border)] bg-[var(--surface)] px-6 py-7 shadow-soft transition ${isComingSoon ? 'cursor-default opacity-60' : 'cursor-pointer hover:-translate-y-1 hover:shadow-card'}`}>
-                {isComingSoon && (
-                  <div className="absolute right-4 top-4 rounded-full bg-[var(--surface-2)] px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-wide text-[var(--text-muted)]">Coming Soon</div>
-                )}
-                {isLocked && !isComingSoon && (
-                  <div className="absolute right-4 top-4 rounded-full bg-accent-soft px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-wide text-accent">🔒 Admin Only</div>
-                )}
-
-                <div className="mb-3.5 flex h-12 w-12 items-center justify-center rounded-2xl text-2xl shadow-sm" style={{ background: mod.bg }}>{mod.icon}</div>
-                <div className="mb-1 text-lg font-black tracking-tight text-[var(--text)]">{mod.title}</div>
-                <div className="mb-2.5 text-[10px] font-bold uppercase tracking-wide text-accent">{mod.subtitle}</div>
-                <div className="mb-5 flex-1 text-[13px] leading-relaxed text-[var(--text-muted)]">{mod.desc}</div>
-                <div className={`self-start rounded-lg px-4 py-2 text-xs font-extrabold ${isComingSoon ? 'bg-[var(--surface-2)] text-[var(--text-muted)]' : 'bg-accent-soft text-accent'}`}>
-                  {isComingSoon ? 'Coming Soon' : `Open ${mod.title} →`}
-                </div>
-              </div>
-            );
-          })}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+          {MODULES.map(mod => (
+            <ModuleCard key={mod.key} mod={mod} onClick={() => handleClick(mod)} user={user} />
+          ))}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

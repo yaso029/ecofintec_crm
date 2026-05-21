@@ -5,9 +5,7 @@ import Landing from './pages/Landing';
 import Layout from './components/Layout';
 import PartnershipsLayout from './components/PartnershipsLayout';
 import AgentsLayout from './components/AgentsLayout';
-import DashboardPage from './pages/DashboardPage';
-import KanbanPage from './pages/KanbanPage';
-import LeadsPage from './pages/LeadsPage';
+import CRMPage from './pages/CRMPage';
 import LeadDetailPage from './pages/LeadDetailPage';
 import UsersPage from './pages/UsersPage';
 import CustomersPage from './pages/CustomersPage';
@@ -31,7 +29,6 @@ import ReferralPartners from './pages/agents/ReferralPartners';
 import ReferralApplications from './pages/partnerships/ReferralApplications';
 import ClientsPage from './pages/clients/ClientsPage';
 import ClientDetailPage from './pages/clients/ClientDetailPage';
-import ClientReportsPage from './pages/clients/ClientReportsPage';
 import ServicesPage from './pages/services/ServicesPage';
 import DocumentsPage from './pages/DocumentsPage';
 import InvoicesPage from './pages/billing/InvoicesPage';
@@ -63,19 +60,12 @@ export default function App() {
       {/* Landing — module selector */}
       <Route path="/" element={<PrivateRoute><Landing /></PrivateRoute>} />
 
-      {/* CRM module — all accounting staff (auditor/payroll/tax have read-only leads) */}
-      <Route path="/crm" element={<PrivateRoute roles={['admin', 'senior_accountant', 'accountant', 'auditor', 'payroll_specialist', 'tax_consultant']}><Layout /></PrivateRoute>}>
-        <Route index element={<DashboardPage />} />
-        <Route path="kanban" element={<KanbanPage />} />
-        <Route path="leads" element={<LeadsPage />} />
-        <Route path="leads/:id" element={<LeadDetailPage />} />
-        <Route path="client-reports" element={<ClientReportsPage />} />
-        <Route path="referral-partners" element={<ReferralPartners />} />
-        <Route path="customers" element={
-          <PrivateRoute roles={['admin']}>
-            <CustomersPage />
-          </PrivateRoute>
-        } />
+      {/* CRM module — tabbed single page */}
+      <Route path="/crm" element={<PrivateRoute roles={['admin', 'senior_accountant', 'accountant', 'auditor', 'payroll_specialist', 'tax_consultant']}><CRMPage /></PrivateRoute>} />
+
+      {/* Lead detail — uses sidebar layout */}
+      <Route path="/crm/leads" element={<PrivateRoute roles={['admin', 'senior_accountant', 'accountant', 'auditor', 'payroll_specialist', 'tax_consultant']}><Layout /></PrivateRoute>}>
+        <Route path=":id" element={<LeadDetailPage />} />
       </Route>
 
       {/* Partnerships module — admin only */}
