@@ -8,6 +8,8 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  // ── TEMP: auto-deploy pipeline test (safe to delete) ──
+  const [showTest, setShowTest] = useState(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,6 +30,32 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary to-secondary p-4">
+      {/* ── TEMP: auto-deploy pipeline test modal — safe to delete ────────── */}
+      {showTest && (
+        <div
+          onClick={() => setShowTest(false)}
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="w-[340px] rounded-2xl border-t-4 border-accent bg-white p-8 text-center shadow-2xl"
+          >
+            <div className="mb-3 text-4xl">🚀</div>
+            <div className="mb-2 text-lg font-extrabold text-ink">Deploy Test ✅</div>
+            <div className="mb-6 text-sm leading-relaxed text-muted">
+              This pop-up confirms the GitHub → Netlify auto-deploy pipeline is working.
+              It is a temporary test and will be removed.
+            </div>
+            <button
+              onClick={() => setShowTest(false)}
+              className="rounded-lg bg-primary px-8 py-2.5 text-sm font-bold text-white transition hover:bg-primary-dark"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+      {/* ── END TEMP ──────────────────────────────────────────────────────── */}
       <div className="w-[400px] rounded-2xl border border-black/5 bg-gradient-to-b from-white to-[#F5F9F7] px-10 py-12 shadow-2xl">
         <div className="mb-8 text-center">
           <img src="/Ecofintec-logo.webp" alt="Ecofintec System" className="mx-auto mb-2 h-28 w-28 object-contain" />
