@@ -37,6 +37,15 @@ const MODULES = [
     btnBg: 'rgba(63,179,137,0.12)',
     type: 'active', path: '/settings',
   },
+  // ── TEMP: deploy-pipeline test module (safe to delete) ──
+  {
+    key: 'test', num: '05', icon: '🧪', title: 'Test',
+    subtitle: 'Deploy Pipeline Check',
+    desc: 'Temporary test module added to confirm the GitHub → Netlify auto-deploy pipeline works. Safe to remove.',
+    bg: 'linear-gradient(145deg,#1a2433,#0c1119)', orbColor: '#6366F1', accentColor: '#818CF8',
+    btnBg: 'rgba(99,102,241,0.12)',
+    type: 'active', path: '/',
+  },
 ];
 
 const ROLE_LABELS = {
