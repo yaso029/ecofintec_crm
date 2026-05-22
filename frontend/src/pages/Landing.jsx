@@ -46,6 +46,14 @@ const MODULES = [
     btnBg: 'rgba(99,102,241,0.12)',
     type: 'active', path: '/',
   },
+  {
+    key: 'test2', num: '06', icon: '🧪', title: 'Test2',
+    subtitle: 'Deploy Pipeline Check 2',
+    desc: 'Second temporary test module to re-confirm the auto-deploy pipeline. Safe to remove.',
+    bg: 'linear-gradient(145deg,#241a33,#130c19)', orbColor: '#A855F7', accentColor: '#C084FC',
+    btnBg: 'rgba(168,85,247,0.12)',
+    type: 'active', path: '/',
+  },
 ];
 
 const ROLE_LABELS = {
