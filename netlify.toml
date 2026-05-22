@@ -1,20 +1,19 @@
 # Netlify build configuration — Ecofintec CRM frontend (Vite / React SPA).
 #
-# This repo is a monorepo: the React frontend lives in ./frontend and the
-# FastAPI backend lives in ./backend (the backend is hosted separately on
-# Railway, NOT on Netlify).
+# Monorepo: the React frontend lives in ./frontend and the FastAPI backend lives
+# in ./backend (the backend is hosted separately on Railway, NOT on Netlify).
 #
-# The frontend talks to the backend via VITE_API_URL. Vite inlines that value
-# at BUILD time, so it must be set as a Netlify environment variable:
-#   Site configuration → Environment variables → VITE_API_URL = https://<your-backend-host>
-# Changing the API URL requires a rebuild (it is baked into the bundle).
+# The Netlify site uses base = "frontend", so the build runs INSIDE the frontend
+# package and "publish" is resolved relative to that base (dist -> frontend/dist).
+# Do NOT add "cd frontend" to the command — the build already starts in frontend.
 #
-# SPA deep-link routing is handled by frontend/public/_redirects, which Vite
-# copies into the published dist/ folder.
+# VITE_API_URL must be set as a Netlify environment variable (it is inlined by
+# Vite at build time). SPA deep-link routing is handled by frontend/public/_redirects.
 
 [build]
-  command = "cd frontend && npm install && npm run build"
-  publish = "frontend/dist"
+  base = "frontend"
+  command = "npm install && npm run build"
+  publish = "dist"
 
 [build.environment]
   NODE_VERSION = "20"
