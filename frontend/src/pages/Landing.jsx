@@ -37,7 +37,6 @@ const MODULES = [
     btnBg: 'rgba(63,179,137,0.12)',
     type: 'active', path: '/settings',
   },
-  // ── TEMP: deploy-pipeline test module (safe to delete) ──
   {
     key: 'test', num: '05', icon: '🧪', title: 'Test',
     subtitle: 'Deploy Pipeline Check',
@@ -53,6 +52,14 @@ const MODULES = [
     bg: 'linear-gradient(145deg,#241a33,#130c19)', orbColor: '#A855F7', accentColor: '#C084FC',
     btnBg: 'rgba(168,85,247,0.12)',
     type: 'active', path: '/',
+  },
+  {
+    key: 'test3', num: '07', icon: '🧪', title: 'Test 3',
+    subtitle: 'Coming Soon',
+    desc: 'This module is currently under development and will be available soon.',
+    bg: 'linear-gradient(145deg,#1a1a2e,#0f0f1e)', orbColor: '#6366f1', accentColor: '#6366f1',
+    btnBg: 'rgba(99,102,241,0.12)',
+    type: 'coming_soon', path: '/',
   },
 ];
 
@@ -146,6 +153,9 @@ export default function Landing() {
       if (user?.role === 'hr_admin' && mod.key === 'hr') { navigate(mod.path); return; }
       setModal({ title: 'No Permission', message: "You don't have permission to access this module. Contact your administrator.", color: '#1F7A59' });
       return;
+    }
+    if (mod.type === 'coming_soon') {
+      setModal({ title: 'Under Development', message: `The ${mod.title} module is currently being built and will be available soon.`, color: '#6366f1' });
     }
   };
 
@@ -280,9 +290,9 @@ export default function Landing() {
       <div style={{ padding: '36px 48px 48px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted, #9CA3AF)', letterSpacing: 2, textTransform: 'uppercase' }}>Modules</div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted, #9CA3AF)' }}>4 active</div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted, #9CA3AF)' }}>5 modules</div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
           {MODULES.map(mod => (
             <ModuleCard key={mod.key} mod={mod} onClick={() => handleClick(mod)} user={user} />
           ))}
