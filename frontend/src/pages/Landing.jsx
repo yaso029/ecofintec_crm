@@ -37,6 +37,14 @@ const MODULES = [
     btnBg: 'rgba(63,179,137,0.12)',
     type: 'active', path: '/settings',
   },
+  {
+    key: 'test1', num: '05', icon: '🧪', title: 'test1',
+    subtitle: 'Test Module',
+    desc: 'Temporary test module (test1) added to verify the auto-deploy pipeline. Safe to remove.',
+    bg: 'linear-gradient(145deg,#1a2433,#0c1119)', orbColor: '#6366F1', accentColor: '#818CF8',
+    btnBg: 'rgba(99,102,241,0.12)',
+    type: 'active', path: '/',
+  },
 ];
 
 const ROLE_LABELS = {
