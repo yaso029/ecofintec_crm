@@ -61,6 +61,14 @@ const MODULES = [
     btnBg: 'rgba(99,102,241,0.12)',
     type: 'coming_soon', path: '/',
   },
+  {
+    key: 'test7', num: '08', icon: '🧪', title: 'Test 7',
+    subtitle: 'Deploy Pipeline Check 7',
+    desc: 'Temporary test module (Test 7) to confirm the auto-deploy pipeline. Safe to remove.',
+    bg: 'linear-gradient(145deg,#0c2433,#06131d)', orbColor: '#0EA5E9', accentColor: '#38BDF8',
+    btnBg: 'rgba(14,165,233,0.12)',
+    type: 'active', path: '/',
+  },
 ];
 
 const ROLE_LABELS = {
