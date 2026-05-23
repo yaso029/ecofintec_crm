@@ -37,14 +37,6 @@ const MODULES = [
     btnBg: 'rgba(63,179,137,0.12)',
     type: 'active', path: '/settings',
   },
-  {
-    key: 'test3', num: '05', icon: '🧪', title: 'Test 3',
-    subtitle: 'Coming Soon',
-    desc: 'This module is currently under development and will be available soon.',
-    bg: 'linear-gradient(145deg,#1a1a2e,#0f0f1e)', orbColor: '#6366f1', accentColor: '#6366f1',
-    btnBg: 'rgba(99,102,241,0.12)',
-    type: 'coming_soon', path: '/',
-  },
 ];
 
 const ROLE_LABELS = {
