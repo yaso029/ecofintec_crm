@@ -38,36 +38,12 @@ const MODULES = [
     type: 'active', path: '/settings',
   },
   {
-    key: 'test', num: '05', icon: '🧪', title: 'Test',
-    subtitle: 'Deploy Pipeline Check',
-    desc: 'Temporary test module added to confirm the GitHub → Netlify auto-deploy pipeline works. Safe to remove.',
-    bg: 'linear-gradient(145deg,#1a2433,#0c1119)', orbColor: '#6366F1', accentColor: '#818CF8',
-    btnBg: 'rgba(99,102,241,0.12)',
-    type: 'active', path: '/',
-  },
-  {
-    key: 'test2', num: '06', icon: '🧪', title: 'Test2',
-    subtitle: 'Deploy Pipeline Check 2',
-    desc: 'Second temporary test module to re-confirm the auto-deploy pipeline. Safe to remove.',
-    bg: 'linear-gradient(145deg,#241a33,#130c19)', orbColor: '#A855F7', accentColor: '#C084FC',
-    btnBg: 'rgba(168,85,247,0.12)',
-    type: 'active', path: '/',
-  },
-  {
-    key: 'test3', num: '07', icon: '🧪', title: 'Test 3',
+    key: 'test3', num: '05', icon: '🧪', title: 'Test 3',
     subtitle: 'Coming Soon',
     desc: 'This module is currently under development and will be available soon.',
     bg: 'linear-gradient(145deg,#1a1a2e,#0f0f1e)', orbColor: '#6366f1', accentColor: '#6366f1',
     btnBg: 'rgba(99,102,241,0.12)',
     type: 'coming_soon', path: '/',
-  },
-  {
-    key: 'test7', num: '08', icon: '🧪', title: 'Test 7',
-    subtitle: 'Deploy Pipeline Check 7',
-    desc: 'Temporary test module (Test 7) to confirm the auto-deploy pipeline. Safe to remove.',
-    bg: 'linear-gradient(145deg,#0c2433,#06131d)', orbColor: '#0EA5E9', accentColor: '#38BDF8',
-    btnBg: 'rgba(14,165,233,0.12)',
-    type: 'active', path: '/',
   },
 ];
 
