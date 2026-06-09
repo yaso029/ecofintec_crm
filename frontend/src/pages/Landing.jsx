@@ -30,7 +30,15 @@ const MODULES = [
     type: 'restricted', path: '/hr',
   },
   {
-    key: 'settings', num: '04', icon: '⚙️', title: 'Settings',
+    key: 'accounting', num: '04', icon: '📊', title: 'Accounting',
+    subtitle: 'Core Bookkeeping',
+    desc: 'Chart of accounts, expenses, bills, bank, journals and live P&L / Balance Sheet / Cash Flow.',
+    bg: 'linear-gradient(145deg,#0e2a26,#06181a)', orbColor: '#22c1a1', accentColor: '#22c1a1',
+    btnBg: 'rgba(34,193,161,0.12)',
+    type: 'active', path: '/accounting',
+  },
+  {
+    key: 'settings', num: '05', icon: '⚙️', title: 'Settings',
     subtitle: 'Account & Management',
     desc: 'View your account, change your password and manage system users.',
     bg: 'linear-gradient(145deg,#141e1a,#0c1410)', orbColor: '#1F7A59', accentColor: '#3FB389',

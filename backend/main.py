@@ -28,6 +28,10 @@ from backend.api import portal_admin as portal_admin_routes
 from backend.api import ai as ai_routes
 from backend.api import security as security_routes
 from backend.api import reports as reports_routes
+from backend.api import (
+    accounting_chart, accounting_purchases, accounting_bank,
+    accounting_journal, accounting_reports,
+)
 import os
 
 app = FastAPI(title="Ecofintec CRM API", version="2.0.0")
@@ -96,6 +100,15 @@ app.include_router(security_routes.router)
 
 # Client Reports — management dashboard aggregations (CRM module)
 app.include_router(reports_routes.router)
+
+# Accounting module (Core Accounting): Chart of Accounts, Tax Rates, Suppliers,
+# Bills, Bill Payments, Expenses, Bank/Cash Accounts + Transactions, Journal
+# Entries (manual), Reports (P&L, Balance Sheet, Cash Flow).
+app.include_router(accounting_chart.router)
+app.include_router(accounting_purchases.router)
+app.include_router(accounting_bank.router)
+app.include_router(accounting_journal.router)
+app.include_router(accounting_reports.router)
 
 
 def seed_admin():

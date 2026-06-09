@@ -615,3 +615,239 @@ class CalendarEvent(Base):
 
     creator = relationship("User", foreign_keys=[created_by])
     approver = relationship("User", foreign_keys=[approved_by])
+
+
+# ─── Accounting module (Core Accounting) ──────────────────────────────────────
+# Single-firm bookkeeping for the practice itself (not per-client). AED default,
+# UAE 5% VAT. Journal lines follow the debit/credit convention; every
+# JournalEntry must balance (Σdebits == Σcredits). Reports (P&L, BS, Cash Flow)
+# are computed by aggregating JournalLines per Account.type.
+
+class Account(Base):
+    """Chart of Accounts node. Supports a single parent for grouping (e.g.
+    "Operating Expenses" → "Rent", "Utilities"). `type` is what every report
+    classifies on; `sub_type` is informational/UX-only."""
+    __tablename__ = "accounts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(20), unique=True, index=True, nullable=False)   # e.g. "1100"
+    name = Column(String(200), nullable=False)
+    type = Column(String(20), nullable=False, index=True)
+    # type ∈ {asset, liability, equity, income, expense}
+    sub_type = Column(String(40), nullable=True)
+    # asset → current_asset, fixed_asset, bank, cash, accounts_receivable
+    # liability → current_liability, long_term_liability, accounts_payable, vat_payable
+    # equity → equity, retained_earnings
+    # income → revenue, other_income
+    # expense → cogs, operating_expense, other_expense
+    parent_id = Column(Integer, ForeignKey("accounts.id"), nullable=True)
+    currency = Column(String(10), default="AED")
+    is_active = Column(Boolean, default=True)
+    description = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    parent = relationship("Account", remote_side=[id], foreign_keys=[parent_id])
+    journal_lines = relationship("JournalLine", back_populates="account")
+
+
+class TaxRate(Base):
+    """VAT/tax rate. UAE defaults: 5% standard, 0% zero-rated, exempt."""
+    __tablename__ = "tax_rates"
+
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(30), unique=True, index=True, nullable=False)   # VAT5, ZERO, EXEMPT
+    name = Column(String(100), nullable=False)
+    rate = Column(Float, default=0.0)                                    # percentage
+    type = Column(String(20), default="both")                            # output, input, both
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class JournalEntry(Base):
+    """A balanced debit/credit transaction. The general-ledger primitive."""
+    __tablename__ = "journal_entries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    entry_number = Column(String(40), unique=True, index=True, nullable=False)  # JE-2026-0001
+    entry_date = Column(String(20), nullable=False, index=True)          # YYYY-MM-DD
+    memo = Column(String(500), nullable=True)
+    reference = Column(String(100), nullable=True)
+    # source_type lets reports/UI link a JE back to what created it
+    source_type = Column(String(30), default="manual", index=True)
+    # manual, expense, bill, supplier_payment, invoice, receipt, bank_transaction
+    source_id = Column(Integer, nullable=True)
+    is_posted = Column(Boolean, default=True)
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    creator = relationship("User", foreign_keys=[created_by])
+    lines = relationship("JournalLine", back_populates="entry", cascade="all, delete-orphan")
+
+
+class JournalLine(Base):
+    __tablename__ = "journal_lines"
+
+    id = Column(Integer, primary_key=True, index=True)
+    entry_id = Column(Integer, ForeignKey("journal_entries.id"), nullable=False, index=True)
+    account_id = Column(Integer, ForeignKey("accounts.id"), nullable=False, index=True)
+    description = Column(String(500), nullable=True)
+    debit = Column(Float, default=0.0)
+    credit = Column(Float, default=0.0)
+
+    entry = relationship("JournalEntry", back_populates="lines")
+    account = relationship("Account", back_populates="journal_lines")
+
+
+class Supplier(Base):
+    __tablename__ = "suppliers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200), nullable=False)
+    contact_name = Column(String(200), nullable=True)
+    email = Column(String(200), nullable=True)
+    phone = Column(String(50), nullable=True)
+    trn = Column(String(20), nullable=True)                              # supplier's TRN
+    address = Column(Text, nullable=True)
+    payment_terms_days = Column(Integer, default=30)
+    notes = Column(Text, nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    bills = relationship("Bill", back_populates="supplier", cascade="all, delete-orphan")
+
+
+class Bill(Base):
+    """Bill received from a supplier (AP). The mirror of an outgoing Invoice."""
+    __tablename__ = "bills"
+
+    id = Column(Integer, primary_key=True, index=True)
+    bill_number = Column(String(40), unique=True, index=True, nullable=False)  # BILL-2026-0001
+    supplier_id = Column(Integer, ForeignKey("suppliers.id"), nullable=False, index=True)
+    supplier_reference = Column(String(100), nullable=True)              # supplier's own invoice #
+
+    status = Column(String(20), default="open", index=True)              # draft, open, partially_paid, paid, void
+    currency = Column(String(10), default="AED")
+    issue_date = Column(String(20), nullable=True)
+    due_date = Column(String(20), nullable=True)
+
+    subtotal = Column(Float, default=0.0)
+    vat_rate = Column(Float, default=5.0)
+    vat_amount = Column(Float, default=0.0)
+    total = Column(Float, default=0.0)
+    amount_paid = Column(Float, default=0.0)
+
+    notes = Column(Text, nullable=True)
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    supplier = relationship("Supplier", back_populates="bills")
+    creator = relationship("User", foreign_keys=[created_by])
+    line_items = relationship("BillLineItem", back_populates="bill", cascade="all, delete-orphan")
+    payments = relationship("SupplierPayment", back_populates="bill", cascade="all, delete-orphan")
+
+
+class BillLineItem(Base):
+    __tablename__ = "bill_line_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    bill_id = Column(Integer, ForeignKey("bills.id"), nullable=False)
+    description = Column(String(500), nullable=False)
+    expense_account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True)
+    quantity = Column(Float, default=1.0)
+    unit_price = Column(Float, default=0.0)
+    line_total = Column(Float, default=0.0)
+
+    bill = relationship("Bill", back_populates="line_items")
+    expense_account = relationship("Account", foreign_keys=[expense_account_id])
+
+
+class SupplierPayment(Base):
+    __tablename__ = "supplier_payments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    bill_id = Column(Integer, ForeignKey("bills.id"), nullable=False, index=True)
+    bank_account_id = Column(Integer, ForeignKey("bank_accounts.id"), nullable=True)
+    amount = Column(Float, default=0.0)
+    currency = Column(String(10), default="AED")
+    method = Column(String(30), default="bank_transfer")                 # cash, bank_transfer, cheque, card, other
+    reference = Column(String(200), nullable=True)
+    paid_at = Column(String(20), nullable=True)
+    recorded_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    bill = relationship("Bill", back_populates="payments")
+    bank_account = relationship("BankAccount", foreign_keys=[bank_account_id])
+    recorder = relationship("User", foreign_keys=[recorded_by])
+
+
+class Expense(Base):
+    """Direct expense not tied to a supplier bill (cash/card spend, petty cash)."""
+    __tablename__ = "expenses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    expense_date = Column(String(20), nullable=False, index=True)
+    description = Column(String(500), nullable=False)
+    expense_account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True, index=True)
+    bank_account_id = Column(Integer, ForeignKey("bank_accounts.id"), nullable=True)
+    supplier_id = Column(Integer, ForeignKey("suppliers.id"), nullable=True)
+    amount = Column(Float, default=0.0)                                  # net (pre-VAT)
+    vat_rate = Column(Float, default=0.0)
+    vat_amount = Column(Float, default=0.0)
+    total = Column(Float, default=0.0)
+    currency = Column(String(10), default="AED")
+    payment_method = Column(String(30), default="cash")
+    reference = Column(String(200), nullable=True)
+    notes = Column(Text, nullable=True)
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    expense_account = relationship("Account", foreign_keys=[expense_account_id])
+    bank_account = relationship("BankAccount", foreign_keys=[bank_account_id])
+    supplier = relationship("Supplier", foreign_keys=[supplier_id])
+    creator = relationship("User", foreign_keys=[created_by])
+
+
+class BankAccount(Base):
+    """A bank, cash, or credit card account. Each is mirrored by a CoA Account."""
+    __tablename__ = "bank_accounts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200), nullable=False)
+    account_type = Column(String(20), default="bank")                    # bank, cash, credit_card
+    bank_name = Column(String(200), nullable=True)
+    account_number = Column(String(50), nullable=True)
+    iban = Column(String(50), nullable=True)
+    currency = Column(String(10), default="AED")
+    opening_balance = Column(Float, default=0.0)
+    coa_account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True)
+    is_active = Column(Boolean, default=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    coa_account = relationship("Account", foreign_keys=[coa_account_id])
+    transactions = relationship("BankTransaction", back_populates="bank_account", cascade="all, delete-orphan")
+
+
+class BankTransaction(Base):
+    """A statement line on a bank/cash account. Amount is signed: + deposit, − withdrawal."""
+    __tablename__ = "bank_transactions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    bank_account_id = Column(Integer, ForeignKey("bank_accounts.id"), nullable=False, index=True)
+    txn_date = Column(String(20), nullable=False, index=True)
+    description = Column(String(500), nullable=True)
+    amount = Column(Float, default=0.0)                                  # signed
+    reference = Column(String(200), nullable=True)
+    counterparty_account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True)
+    is_reconciled = Column(Boolean, default=False)
+    source_type = Column(String(30), default="manual")                   # manual, supplier_payment, customer_receipt, expense
+    source_id = Column(Integer, nullable=True)
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    bank_account = relationship("BankAccount", back_populates="transactions")
+    counterparty_account = relationship("Account", foreign_keys=[counterparty_account_id])
+    creator = relationship("User", foreign_keys=[created_by])

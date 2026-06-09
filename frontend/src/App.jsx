@@ -35,6 +35,17 @@ import InvoicesPage from './pages/billing/InvoicesPage';
 import InvoiceDetailPage from './pages/billing/InvoiceDetailPage';
 import PortalApp from './pages/portal/PortalApp';
 import AuditLogPage from './pages/security/AuditLogPage';
+import AccountingLayout from './components/AccountingLayout';
+import AccountingDashboard from './pages/accounting/Dashboard';
+import ChartOfAccounts from './pages/accounting/ChartOfAccounts';
+import AccountingInvoicesLink from './pages/accounting/InvoicesLink';
+import AccountingExpenses from './pages/accounting/Expenses';
+import AccountingBills from './pages/accounting/Bills';
+import AccountingSuppliers from './pages/accounting/Suppliers';
+import AccountingBank from './pages/accounting/BankAccounts';
+import AccountingJournal from './pages/accounting/JournalEntries';
+import AccountingTaxRates from './pages/accounting/TaxRates';
+import AccountingReports from './pages/accounting/Reports';
 
 function PrivateRoute({ children, roles }) {
   const { user } = useAuth();
@@ -125,6 +136,24 @@ export default function App() {
 
       {/* Security audit log — admin only */}
       <Route path="/audit-log" element={<PrivateRoute roles={['admin']}><AuditLogPage /></PrivateRoute>} />
+
+      {/* Accounting module — Core Accounting (CoA, expenses, bills, bank, journals, reports) */}
+      <Route path="/accounting" element={
+        <PrivateRoute roles={['admin', 'senior_accountant', 'accountant', 'auditor', 'tax_consultant']}>
+          <AccountingLayout />
+        </PrivateRoute>
+      }>
+        <Route index element={<AccountingDashboard />} />
+        <Route path="chart" element={<ChartOfAccounts />} />
+        <Route path="invoices" element={<AccountingInvoicesLink />} />
+        <Route path="expenses" element={<AccountingExpenses />} />
+        <Route path="bills" element={<AccountingBills />} />
+        <Route path="suppliers" element={<AccountingSuppliers />} />
+        <Route path="bank" element={<AccountingBank />} />
+        <Route path="journal" element={<AccountingJournal />} />
+        <Route path="tax-rates" element={<AccountingTaxRates />} />
+        <Route path="reports" element={<AccountingReports />} />
+      </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
