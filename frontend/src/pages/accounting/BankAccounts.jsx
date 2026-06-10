@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import api from '../../api';
 import toast from 'react-hot-toast';
+import { useT } from '../../i18n/LocaleContext';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const EMPTY = { name: '', account_type: 'bank', bank_name: '', account_number: '', iban: '', currency: 'AED', opening_balance: 0, is_active: true, notes: '' };
 const EMPTY_TXN = { txn_date: today(), description: '', amount: 0, reference: '', counterparty_account_id: '' };
 
 export default function BankAccounts() {
+  const t = useT();
   const [accounts, setAccounts] = useState([]);
   const [coa, setCoa] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -76,8 +78,8 @@ export default function BankAccounts() {
   return (
     <div className="p-6 md:p-7">
       <div className="mb-5 flex items-center justify-between">
-        <div><h1 className="page-title">Bank & Cash Accounts</h1><p className="page-subtitle">Each account auto-mirrors a CoA asset account.</p></div>
-        <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>{showForm ? 'Cancel' : '+ Add Account'}</button>
+        <div><h1 className="page-title">{t('Bank & Cash Accounts')}</h1><p className="page-subtitle">{t('Each account auto-mirrors a CoA asset account.')}</p></div>
+        <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>{showForm ? t('Cancel') : t('+ Add Account')}</button>
       </div>
 
       {showForm && (

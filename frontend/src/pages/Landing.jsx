@@ -3,6 +3,7 @@ import { useAuth } from '../AuthContext';
 import { useState, useEffect } from 'react';
 import api from '../api';
 import useIsMobile from '../hooks/useIsMobile';
+import { useT } from '../i18n/LocaleContext';
 
 const MODULES = [
   {
@@ -57,14 +58,15 @@ const ROLE_LABELS = {
   hr_admin: 'HR Admin',
 };
 
-function Modal({ title, message, color, onClose }) {
+function Modal({ title, message, color, icon, onClose }) {
+  const t = useT();
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.5)', padding: 16 }}>
       <div onClick={e => e.stopPropagation()} style={{ maxWidth: 360, borderRadius: 20, borderTop: `4px solid ${color}`, background: 'var(--surface)', padding: '40px 48px', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-        <div style={{ fontSize: 44, marginBottom: 16 }}>{title === 'No Permission' ? '🔒' : '🚧'}</div>
+        <div style={{ fontSize: 44, marginBottom: 16 }}>{icon}</div>
         <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)', marginBottom: 10 }}>{title}</div>
         <div style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 28 }}>{message}</div>
-        <button onClick={onClose} style={{ background: color, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 32px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Got it</button>
+        <button onClick={onClose} style={{ background: color, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 32px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{t('Got it')}</button>
       </div>
     </div>
   );
@@ -74,8 +76,9 @@ const signOut = () => { localStorage.removeItem('token'); localStorage.removeIte
 
 function ModuleCard({ mod, onClick, user }) {
   const [hovered, setHovered] = useState(false);
+  const t = useT();
   const isLocked = mod.type === 'restricted' && user?.role !== 'admin' && !(user?.role === 'hr_admin' && mod.key === 'hr');
-
+  const title = t(mod.title);
   return (
     <div
       onClick={onClick}
@@ -92,16 +95,16 @@ function ModuleCard({ mod, onClick, user }) {
     >
       <div style={{ position: 'absolute', bottom: -30, right: -30, width: 110, height: 110, borderRadius: '50%', background: mod.orbColor, opacity: 0.18, pointerEvents: 'none' }} />
       {isLocked && (
-        <div style={{ position: 'absolute', top: 14, right: 14, fontSize: 9, fontWeight: 800, letterSpacing: 0.8, textTransform: 'uppercase', padding: '3px 9px', borderRadius: 8, background: 'rgba(217,119,6,0.15)', color: '#F59E0B' }}>Admin Only</div>
+        <div style={{ position: 'absolute', top: 14, right: 14, fontSize: 9, fontWeight: 800, letterSpacing: 0.8, textTransform: 'uppercase', padding: '3px 9px', borderRadius: 8, background: 'rgba(217,119,6,0.15)', color: '#F59E0B' }}>{t('Admin Only', 'Admin Only')}</div>
       )}
       <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.18)', letterSpacing: 3, marginBottom: 18 }}>{mod.num}</div>
       <div style={{ fontSize: 30, marginBottom: 14 }}>{mod.icon}</div>
-      <div style={{ fontSize: 19, fontWeight: 900, color: '#fff', letterSpacing: -0.4, marginBottom: 4 }}>{mod.title}</div>
-      <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10, opacity: 0.55, color: mod.accentColor }}>{mod.subtitle}</div>
-      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.65, flex: 1 }}>{mod.desc}</div>
+      <div style={{ fontSize: 19, fontWeight: 900, color: '#fff', letterSpacing: -0.4, marginBottom: 4 }}>{title}</div>
+      <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10, opacity: 0.55, color: mod.accentColor }}>{t(mod.subtitle)}</div>
+      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.65, flex: 1 }}>{t(mod.desc)}</div>
       <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <button style={{ fontSize: 11, fontWeight: 800, padding: '7px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', background: mod.btnBg, color: mod.accentColor }}>
-          Open {mod.title} →
+          {t('Open')} {title} →
         </button>
         <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }}>›</span>
       </div>
@@ -113,6 +116,7 @@ export default function Landing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isMobile = useIsMobile();
+  const t = useT();
   const [modal, setModal] = useState(null);
   const [stats, setStats] = useState({ leads: '—', partners: '—', team: '—' });
 
@@ -135,18 +139,18 @@ export default function Landing() {
     if (mod.type === 'restricted') {
       if (user?.role === 'admin') { navigate(mod.path); return; }
       if (user?.role === 'hr_admin' && mod.key === 'hr') { navigate(mod.path); return; }
-      setModal({ title: 'No Permission', message: "You don't have permission to access this module. Contact your administrator.", color: '#1F7A59' });
+      setModal({ icon: '🔒', title: t('No Permission'), message: t("You don't have permission to access this module. Contact your administrator."), color: '#1F7A59' });
       return;
     }
     if (mod.type === 'coming_soon') {
-      setModal({ title: 'Under Development', message: `The ${mod.title} module is currently being built and will be available soon.`, color: '#6366f1' });
+      setModal({ icon: '🚧', title: t('Under Development'), message: `${t(mod.title)} — ${t('Coming soon', 'coming soon')}.`, color: '#6366f1' });
     }
   };
 
   const heroStats = [
-    { label: 'Active Inquiries', value: stats.leads },
-    { label: 'Referral Partners', value: stats.partners },
-    { label: 'Team Members', value: stats.team },
+    { label: t('Active Inquiries'), value: stats.leads },
+    { label: t('Referral Partners'), value: stats.partners },
+    { label: t('Team Members'), value: stats.team },
   ];
 
   // ── MOBILE ──────────────────────────────────────────────
@@ -160,25 +164,25 @@ export default function Landing() {
             <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent-light to-accent text-base font-black text-white">E</div>
               <div>
-                <div className="text-base font-black tracking-tight text-white">Ecofintec Accounting</div>
-                <div className="text-[8px] uppercase tracking-[2px] text-accent-light">Accounting Firm CRM</div>
+                <div className="text-base font-black tracking-tight text-white">{t('Ecofintec Accounting')}</div>
+                <div className="text-[8px] uppercase tracking-[2px] text-accent-light">{t('Accounting Firm CRM')}</div>
               </div>
             </div>
-            <button onClick={signOut} className="rounded-lg border border-white/12 bg-white/[0.07] px-3 py-1.5 text-xs text-white/50">Sign out</button>
+            <button onClick={signOut} className="rounded-lg border border-white/12 bg-white/[0.07] px-3 py-1.5 text-xs text-white/50">{t('Sign out')}</button>
           </div>
 
           <div className="flex items-center justify-between">
             <div>
-              <div className="mb-0.5 text-[13px] text-white/40">Welcome back</div>
+              <div className="mb-0.5 text-[13px] text-white/40">{t('Welcome back')}</div>
               <div className="text-xl font-extrabold text-white">{user?.full_name}</div>
             </div>
             <span className="inline-block rounded-full border border-accent-light/30 bg-accent-light/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-accent-light">
-              {ROLE_LABELS[user?.role] || user?.role}
+              {t(ROLE_LABELS[user?.role] || user?.role || '')}
             </span>
           </div>
 
           <div className="mt-3.5 flex gap-2.5">
-            {[{ label: 'Inquiries', value: stats.leads }, { label: 'Partners', value: stats.partners }, { label: 'Team', value: stats.team }].map(s => (
+            {[{ label: t('Inquiries'), value: stats.leads }, { label: t('Partners'), value: stats.partners }, { label: t('Team'), value: stats.team }].map(s => (
               <div key={s.label} className="flex-1 rounded-xl border border-white/[0.07] bg-white/5 px-2 py-2.5 text-center">
                 <div className="text-lg font-black text-accent-light">{s.value}</div>
                 <div className="mt-0.5 text-[10px] text-white/40">{s.label}</div>
@@ -188,7 +192,7 @@ export default function Landing() {
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-5">
-          <div className="mb-3.5 text-[11px] font-bold uppercase tracking-[2px] text-[var(--text-muted)]">Select a module</div>
+          <div className="mb-3.5 text-[11px] font-bold uppercase tracking-[2px] text-[var(--text-muted)]">{t('Select a module')}</div>
           <div className="flex flex-col gap-3">
             {MODULES.map(mod => {
               const isLocked = mod.type === 'restricted' && user?.role !== 'admin' && !(user?.role === 'hr_admin' && mod.key === 'hr');
@@ -198,8 +202,8 @@ export default function Landing() {
                   className="flex min-h-20 items-center gap-4 overflow-hidden rounded-2xl border border-white/[0.06] px-5 py-5 cursor-pointer">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-2xl">{mod.icon}</div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-base font-black tracking-tight text-white">{mod.title}</div>
-                    <div className="mt-0.5 text-[10px] font-bold uppercase tracking-wide" style={{ color: mod.accentColor }}>{mod.subtitle}</div>
+                    <div className="text-base font-black tracking-tight text-white">{t(mod.title)}</div>
+                    <div className="mt-0.5 text-[10px] font-bold uppercase tracking-wide" style={{ color: mod.accentColor }}>{t(mod.subtitle)}</div>
                   </div>
                   {isLocked ? (
                     <div className="shrink-0 text-base">🔒</div>
@@ -224,20 +228,20 @@ export default function Landing() {
       <nav style={{ background: 'var(--surface, #fff)', borderBottom: '1px solid var(--border, #E8EDE9)', padding: '0 48px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ width: 36, height: 36, borderRadius: 9, background: '#0A2E1E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900, color: '#3FB389' }}>E</div>
-          <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--text, #0A2E1E)', letterSpacing: '-0.2px' }}>Ecofintec Accounting</div>
+          <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--text, #0A2E1E)', letterSpacing: '-0.2px' }}>{t('Ecofintec Accounting')}</div>
           <div style={{ width: 1, height: 20, background: 'var(--border, #E8EDE9)' }} />
-          <div style={{ fontSize: 13, color: 'var(--text-muted, #9CA3AF)' }}>Dashboard</div>
+          <div style={{ fontSize: 13, color: 'var(--text-muted, #9CA3AF)' }}>{t('Dashboard')}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text, #0A2E1E)' }}>{user?.full_name}</div>
-            <div style={{ fontSize: 10, color: '#1F7A59', fontWeight: 600 }}>{ROLE_LABELS[user?.role] || user?.role}</div>
+            <div style={{ fontSize: 10, color: '#1F7A59', fontWeight: 600 }}>{t(ROLE_LABELS[user?.role] || user?.role || '')}</div>
           </div>
           <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg,#1F7A59,#3FB389)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: '#fff' }}>
             {user?.full_name?.[0]?.toUpperCase() || 'U'}
           </div>
           <button onClick={signOut} style={{ padding: '7px 14px', background: 'var(--surface-2, #F3F6F4)', border: 'none', borderRadius: 8, fontSize: 12, color: 'var(--text-muted, #6B7280)', cursor: 'pointer', fontWeight: 600 }}>
-            Sign out
+            {t('Sign out')}
           </button>
         </div>
       </nav>
@@ -248,11 +252,11 @@ export default function Landing() {
         <div style={{ position: 'absolute', bottom: -60, left: '25%', width: 220, height: 220, borderRadius: '50%', background: 'rgba(63,179,137,0.04)', pointerEvents: 'none' }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(63,179,137,0.7)', letterSpacing: '2.5px', textTransform: 'uppercase', marginBottom: 10 }}>
-            Good morning, {user?.full_name?.split(' ')[0]}
+            {t('Good morning')}, {user?.full_name?.split(' ')[0]}
           </div>
-          <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', letterSpacing: '-0.8px', marginBottom: 6 }}>Ecofintec CRM</div>
+          <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', letterSpacing: '-0.8px', marginBottom: 6 }}>{t('Ecofintec CRM')}</div>
           <div style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.38)', marginBottom: 40 }}>
-            Your accounting firm management platform — all modules in one place.
+            {t('Your accounting firm management platform — all modules in one place.')}
           </div>
         </div>
         <div style={{ display: 'flex' }}>
@@ -273,8 +277,8 @@ export default function Landing() {
       {/* Modules grid */}
       <div style={{ padding: '36px 48px 48px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted, #9CA3AF)', letterSpacing: 2, textTransform: 'uppercase' }}>Modules</div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted, #9CA3AF)' }}>5 modules</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted, #9CA3AF)', letterSpacing: 2, textTransform: 'uppercase' }}>{t('Modules')}</div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted, #9CA3AF)' }}>{t('5 modules')}</div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
           {MODULES.map(mod => (

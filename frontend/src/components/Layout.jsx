@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import api from '../api';
 import useIsMobile from '../hooks/useIsMobile';
 import { ThemeToggle } from '../ThemeContext';
+import { LocaleToggle, useT } from '../i18n/LocaleContext';
 
 const playNotifSound = () => {
   try {
@@ -26,6 +27,7 @@ export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const t = useT();
   const [unread, setUnread] = useState(0);
   const [notifs, setNotifs] = useState([]);
   const [showNotifs, setShowNotifs] = useState(false);
@@ -87,14 +89,14 @@ export default function Layout() {
       {showNotifs && (
         <div className={`overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-pop z-[200] ${panelClass}`}>
           <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3.5">
-            <span className="text-sm font-semibold text-[var(--text)]">Notifications</span>
+            <span className="text-sm font-semibold text-[var(--text)]">{t('Notifications')}</span>
             {unread > 0 && (
-              <button onClick={markAllRead} className="text-xs font-semibold text-accent">Mark all read</button>
+              <button onClick={markAllRead} className="text-xs font-semibold text-accent">{t('Mark all read')}</button>
             )}
           </div>
           <div className="max-h-80 overflow-y-auto">
             {notifs.length === 0 ? (
-              <div className="p-5 text-center text-[13px] text-[var(--text-muted)]">No notifications</div>
+              <div className="p-5 text-center text-[13px] text-[var(--text-muted)]">{t('No notifications')}</div>
             ) : notifs.map(n => (
               <div key={n.id} className={'notif-item' + (n.is_read ? '' : ' notif-item-unread')}>
                 <div className="text-[var(--text)]">{n.message}</div>
@@ -136,19 +138,23 @@ export default function Layout() {
             </div>
             <button
               onClick={() => { navigate('/'); setMenuOpen(false); }}
-              className="block w-full border-b border-[var(--border)] px-4 py-3 text-left text-[13px] text-[var(--text)] hover:bg-[var(--surface-2)]"
+              className="block w-full border-b border-[var(--border)] px-4 py-3 text-start text-[13px] text-[var(--text)] hover:bg-[var(--surface-2)]"
             >
-              ← Home
+              ← {t('Home')}
             </button>
             <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3 text-[13px] text-[var(--text)]">
-              <span>Theme</span>
+              <span>{t('Theme')}</span>
               <ThemeToggle className="rounded-lg px-2 py-1 text-base hover:bg-[var(--surface-2)]" />
+            </div>
+            <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3 text-[13px] text-[var(--text)]">
+              <span>Language / اللغة</span>
+              <LocaleToggle className="rounded-lg px-2 py-1 text-base hover:bg-[var(--surface-2)]" />
             </div>
             <button
               onClick={handleLogout}
-              className="block w-full px-4 py-3 text-left text-[13px] text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10"
+              className="block w-full px-4 py-3 text-start text-[13px] text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10"
             >
-              Logout
+              {t('Logout')}
             </button>
           </div>
         )}
@@ -183,11 +189,11 @@ export default function Layout() {
   // Desktop layout
   return (
     <div className="flex min-h-screen bg-page dark:bg-surface-dark">
-      <aside className="fixed top-0 left-0 z-[100] flex h-screen w-60 flex-col bg-gradient-to-b from-primary to-primary-dark text-white">
+      <aside className="fixed top-0 start-0 z-[100] flex h-screen w-60 flex-col bg-gradient-to-b from-primary to-primary-dark text-white">
         <div className="border-b border-white/10 px-6 pt-7 pb-5">
           <div className="text-[22px] font-extrabold tracking-tight">Ecofintec</div>
           <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-accent-light">
-            Accounting CRM
+            {t('Accounting Firm CRM')}
           </div>
         </div>
 
@@ -214,15 +220,16 @@ export default function Layout() {
             onClick={() => navigate('/')}
             className="w-full rounded-lg bg-white/10 px-3 py-2 text-[13px] text-white/75 transition hover:bg-white/20"
           >
-            ← Home
+            ← {t('Home')}
           </button>
         </div>
       </aside>
 
-      <div className="ml-60 flex min-h-screen flex-1 min-w-0 flex-col overflow-hidden">
+      <div className="ms-60 flex min-h-screen flex-1 min-w-0 flex-col overflow-hidden">
         <header className="sticky top-0 z-50 flex h-[60px] items-center justify-end gap-1 border-b border-[var(--border)] bg-[var(--surface)] px-7 shadow-soft">
+          <LocaleToggle className="rounded-lg px-2.5 py-1.5 text-[var(--text-muted)] transition hover:bg-[var(--surface-2)]" />
           <ThemeToggle className="rounded-lg px-2 py-1.5 text-base text-[var(--text-muted)] transition hover:bg-[var(--surface-2)]" />
-          <NotifBell panelClass="absolute right-0 top-11 w-[340px]" />
+          <NotifBell panelClass="absolute end-0 top-11 w-[340px]" />
         </header>
 
         <main className="flex-1 overflow-hidden p-7">

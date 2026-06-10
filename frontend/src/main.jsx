@@ -4,18 +4,21 @@ import { BrowserRouter } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './AuthContext'
 import { ThemeProvider } from './ThemeContext'
+import { LocaleProvider } from './i18n/LocaleContext'
 import App from './App.jsx'
 import './index.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>
-          <App />
-          <Toaster position="top-right" />
-        </AuthProvider>
-      </ThemeProvider>
+      <LocaleProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <App />
+            <Toaster position="top-right" />
+          </AuthProvider>
+        </ThemeProvider>
+      </LocaleProvider>
     </BrowserRouter>
   </StrictMode>,
 )

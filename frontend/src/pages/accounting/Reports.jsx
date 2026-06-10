@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../../api';
+import { useT } from '../../i18n/LocaleContext';
 
 const startOfYear = () => `${new Date().getFullYear()}-01-01`;
 const today = () => new Date().toISOString().slice(0, 10);
@@ -7,6 +8,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 function fmt(n) { return (n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
 export default function Reports() {
+  const t = useT();
   const [tab, setTab] = useState('pl');
   const [start, setStart] = useState(startOfYear());
   const [end, setEnd] = useState(today());
@@ -39,27 +41,27 @@ export default function Reports() {
 
   return (
     <div className="p-6 md:p-7">
-      <h1 className="page-title">Reports</h1>
-      <p className="page-subtitle mb-5">Computed live from posted journal entries.</p>
+      <h1 className="page-title">{t('Reports')}</h1>
+      <p className="page-subtitle mb-5">{t('Computed live from posted journal entries.')}</p>
 
       <div className="card p-3 mb-5 flex flex-wrap gap-3 items-end">
         <div>
           <div className="flex gap-1">
             {[
-              { key: 'pl', label: 'Profit & Loss' },
-              { key: 'bs', label: 'Balance Sheet' },
-              { key: 'cf', label: 'Cash Flow' },
-              { key: 'vat', label: 'VAT Return' },
-            ].map(t => (
-              <button key={t.key} onClick={() => setTab(t.key)}
-                className={'btn btn-sm ' + (tab === t.key ? 'btn-primary' : 'btn-ghost')}>{t.label}</button>
+              { key: 'pl', label: t('Profit & Loss') },
+              { key: 'bs', label: t('Balance Sheet') },
+              { key: 'cf', label: t('Cash Flow') },
+              { key: 'vat', label: t('VAT Return') },
+            ].map(tab2 => (
+              <button key={tab2.key} onClick={() => setTab(tab2.key)}
+                className={'btn btn-sm ' + (tab === tab2.key ? 'btn-primary' : 'btn-ghost')}>{tab2.label}</button>
             ))}
           </div>
         </div>
         {tab !== 'bs' && (
-          <div><label className="label">From</label><input className="input" type="date" value={start} onChange={e => setStart(e.target.value)} /></div>
+          <div><label className="label">{t('From')}</label><input className="input" type="date" value={start} onChange={e => setStart(e.target.value)} /></div>
         )}
-        <div><label className="label">{tab === 'bs' ? 'As of' : 'To'}</label><input className="input" type="date" value={end} onChange={e => setEnd(e.target.value)} /></div>
+        <div><label className="label">{tab === 'bs' ? t('As of') : t('To')}</label><input className="input" type="date" value={end} onChange={e => setEnd(e.target.value)} /></div>
       </div>
 
       {loading && <div className="text-[var(--text-muted)] text-sm">Loading…</div>}

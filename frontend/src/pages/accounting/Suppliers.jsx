@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import api from '../../api';
 import toast from 'react-hot-toast';
+import { useT } from '../../i18n/LocaleContext';
 
 const EMPTY = { name: '', contact_name: '', email: '', phone: '', trn: '', address: '', payment_terms_days: 30, notes: '', is_active: true };
 
 export default function Suppliers() {
+  const t = useT();
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -36,8 +38,8 @@ export default function Suppliers() {
   return (
     <div className="p-6 md:p-7">
       <div className="mb-5 flex items-center justify-between">
-        <div><h1 className="page-title">Suppliers</h1><p className="page-subtitle">{suppliers.length} suppliers</p></div>
-        <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>{showForm ? 'Cancel' : '+ Add Supplier'}</button>
+        <div><h1 className="page-title">{t('Suppliers')}</h1><p className="page-subtitle">{suppliers.length} {t('suppliers')}</p></div>
+        <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>{showForm ? t('Cancel') : t('+ Add Supplier')}</button>
       </div>
 
       {showForm && (

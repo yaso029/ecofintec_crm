@@ -9,14 +9,21 @@
     <meta name="theme-color" content="#0B3D2E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <title>Ecofintec · Accounting CRM</title>
     <script>
-      // Apply persisted theme before paint to avoid a flash of the wrong theme.
+      // Apply persisted theme + locale before paint to avoid a flash of the
+      // wrong theme/direction. The locale also sets <html dir> so RTL layout
+      // (Arabic) is in place before React mounts.
       try {
         var t = localStorage.getItem('ecofintec-theme');
         if (t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
           document.documentElement.classList.add('dark');
+        }
+        var l = localStorage.getItem('locale');
+        if (l === 'ar') {
+          document.documentElement.lang = 'ar';
+          document.documentElement.dir = 'rtl';
         }
       } catch (e) {}
     </script>

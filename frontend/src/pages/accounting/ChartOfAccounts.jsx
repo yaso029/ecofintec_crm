@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import api from '../../api';
 import toast from 'react-hot-toast';
+import { useT } from '../../i18n/LocaleContext';
 
 const TYPES = ['asset', 'liability', 'equity', 'income', 'expense'];
 
 export default function ChartOfAccounts() {
+  const t = useT();
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -48,11 +50,11 @@ export default function ChartOfAccounts() {
     <div className="p-6 md:p-7">
       <div className="mb-5 flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="page-title">Chart of Accounts</h1>
-          <p className="page-subtitle">{accounts.length} accounts</p>
+          <h1 className="page-title">{t('Chart of Accounts')}</h1>
+          <p className="page-subtitle">{accounts.length} {t('accounts')}</p>
         </div>
         <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>
-          {showForm ? 'Cancel' : '+ Add Account'}
+          {showForm ? t('Cancel') : t('+ Add Account')}
         </button>
       </div>
 
@@ -77,30 +79,30 @@ export default function ChartOfAccounts() {
       )}
 
       <div className="mb-3 flex gap-2 flex-wrap">
-        <input className="input max-w-xs" placeholder="Search code or name…" value={filter} onChange={e => setFilter(e.target.value)} />
+        <input className="input max-w-xs" placeholder={t('Search code or name…')} value={filter} onChange={e => setFilter(e.target.value)} />
         <select className="input max-w-[180px]" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
-          <option value="">All types</option>
-          {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+          <option value="">{t('All types')}</option>
+          {TYPES.map(typ => <option key={typ} value={typ}>{t(typ)}</option>)}
         </select>
       </div>
 
       <div className="card overflow-hidden">
         <table className="data-table">
           <thead><tr>
-            <th className="th">Code</th><th className="th">Name</th><th className="th">Type</th>
-            <th className="th">Sub-type</th><th className="th text-right">Balance</th><th className="th"></th>
+            <th className="th">{t('Code')}</th><th className="th">{t('Name')}</th><th className="th">{t('Type')}</th>
+            <th className="th">{t('Sub-type')}</th><th className="th text-end">{t('Balance')}</th><th className="th"></th>
           </tr></thead>
           <tbody>
-            {loading ? <tr><td colSpan={6} className="td text-center text-[var(--text-muted)]">Loading…</td></tr>
-            : filtered.length === 0 ? <tr><td colSpan={6} className="td text-center text-[var(--text-muted)]">No accounts. Click "Seed default chart" on the Accounting Dashboard to bootstrap.</td></tr>
+            {loading ? <tr><td colSpan={6} className="td text-center text-[var(--text-muted)]">{t('Loading…')}</td></tr>
+            : filtered.length === 0 ? <tr><td colSpan={6} className="td text-center text-[var(--text-muted)]">{t('No accounts. Click "Seed default chart" on the Accounting Dashboard to bootstrap.')}</td></tr>
             : filtered.map(a => (
               <tr key={a.id}>
                 <td className="td font-mono">{a.code}</td>
                 <td className="td">{a.name}</td>
-                <td className="td"><span className="badge badge-neutral capitalize">{a.type}</span></td>
+                <td className="td"><span className="badge badge-neutral capitalize">{t(a.type)}</span></td>
                 <td className="td text-[var(--text-muted)]">{a.sub_type || '—'}</td>
-                <td className="td text-right font-mono">{(a.balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                <td className="td text-right"><button className="btn btn-sm btn-danger" onClick={() => remove(a.id)}>Delete</button></td>
+                <td className="td text-end font-mono">{(a.balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                <td className="td text-end"><button className="btn btn-sm btn-danger" onClick={() => remove(a.id)}>{t('Delete')}</button></td>
               </tr>
             ))}
           </tbody>

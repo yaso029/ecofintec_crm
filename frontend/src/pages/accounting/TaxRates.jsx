@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import api from '../../api';
 import toast from 'react-hot-toast';
+import { useT } from '../../i18n/LocaleContext';
 
 export default function TaxRates() {
+  const t = useT();
   const [rates, setRates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -37,10 +39,10 @@ export default function TaxRates() {
     <div className="p-6 md:p-7">
       <div className="mb-5 flex items-center justify-between">
         <div>
-          <h1 className="page-title">Tax Rates</h1>
-          <p className="page-subtitle">VAT and other tax codes used on invoices, bills and expenses.</p>
+          <h1 className="page-title">{t('Tax Rates')}</h1>
+          <p className="page-subtitle">{t('VAT and other tax codes used on invoices, bills and expenses.')}</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>{showForm ? 'Cancel' : '+ Add Tax Rate'}</button>
+        <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>{showForm ? t('Cancel') : t('+ Add Tax Rate')}</button>
       </div>
 
       {showForm && (

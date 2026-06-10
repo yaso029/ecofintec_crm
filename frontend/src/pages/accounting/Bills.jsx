@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../../api';
 import toast from 'react-hot-toast';
+import { useT } from '../../i18n/LocaleContext';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const EMPTY = {
@@ -10,6 +11,7 @@ const EMPTY = {
 };
 
 export default function Bills() {
+  const t = useT();
   const [bills, setBills] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [accounts, setAccounts] = useState([]);
@@ -88,8 +90,8 @@ export default function Bills() {
   return (
     <div className="p-6 md:p-7">
       <div className="mb-5 flex items-center justify-between">
-        <div><h1 className="page-title">Bills</h1><p className="page-subtitle">{bills.length} bills · supplier invoices (AP).</p></div>
-        <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>{showForm ? 'Cancel' : '+ New Bill'}</button>
+        <div><h1 className="page-title">{t('Bills')}</h1><p className="page-subtitle">{bills.length} {t('bills · supplier invoices (AP).')}</p></div>
+        <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>{showForm ? t('Cancel') : t('+ New Bill')}</button>
       </div>
 
       {showForm && (

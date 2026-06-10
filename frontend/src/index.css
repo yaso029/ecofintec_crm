@@ -39,7 +39,7 @@
   --color-brand-green: #1F7A59;
 
   /* Typography */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Inter', 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Tajawal', 'Noto Naskh Arabic', Roboto, sans-serif;
 
   /* Radius + elevation scale (premium = soft, layered shadows) */
   --radius-card: 1rem;
@@ -86,6 +86,21 @@ a { text-decoration: none; color: inherit; }
 button { cursor: pointer; }
 
 ::selection { background: rgba(31,122,89,0.20); }
+
+/* ─── RTL (Arabic) ──────────────────────────────────────────────────────────
+   Tailwind v4 logical utilities (start/end, ps/pe, ms/me) auto-flip with
+   `dir="rtl"`, so most layout flips for free. These overrides handle the
+   handful of utility classes that still use physical sides on existing
+   screens we haven't yet migrated. */
+html[dir="rtl"] body { font-family: 'Cairo', 'Tajawal', 'Noto Naskh Arabic', var(--font-sans); }
+html[dir="rtl"] .text-left  { text-align: right; }
+html[dir="rtl"] .text-right { text-align: left; }
+html[dir="rtl"] .ml-60      { margin-left: 0; margin-right: 15rem; }
+html[dir="rtl"] .mr-60      { margin-right: 0; margin-left: 15rem; }
+html[dir="rtl"] aside.left-0  { left: auto; right: 0; }
+html[dir="rtl"] aside.right-0 { right: auto; left: 0; }
+html[dir="rtl"] .nav-link { border-left: none; border-right: 3px solid transparent; }
+html[dir="rtl"] .nav-link-active { border-right-color: var(--color-accent-light); }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }

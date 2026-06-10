@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../../api';
 import toast from 'react-hot-toast';
+import { useT } from '../../i18n/LocaleContext';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const EMPTY = { entry_date: today(), memo: '', reference: '', lines: [
@@ -9,6 +10,7 @@ const EMPTY = { entry_date: today(), memo: '', reference: '', lines: [
 ]};
 
 export default function JournalEntries() {
+  const t = useT();
   const [entries, setEntries] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,7 +68,7 @@ export default function JournalEntries() {
   return (
     <div className="p-6 md:p-7">
       <div className="mb-5 flex items-center justify-between flex-wrap gap-2">
-        <div><h1 className="page-title">Journal Entries</h1><p className="page-subtitle">{entries.length} entries · the general ledger.</p></div>
+        <div><h1 className="page-title">{t('Journal Entries')}</h1><p className="page-subtitle">{entries.length} {t('entries · the general ledger.')}</p></div>
         <div className="flex gap-2">
           <select className="input max-w-[180px]" value={sourceFilter} onChange={e => setSourceFilter(e.target.value)}>
             <option value="">All sources</option>
@@ -79,7 +81,7 @@ export default function JournalEntries() {
             <option value="bank_transaction">Bank transaction</option>
             <option value="bank_account_opening">Opening balance</option>
           </select>
-          <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>{showForm ? 'Cancel' : '+ New Entry'}</button>
+          <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>{showForm ? t('Cancel') : t('+ New Entry')}</button>
         </div>
       </div>
 

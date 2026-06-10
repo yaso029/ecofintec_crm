@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../../api';
 import toast from 'react-hot-toast';
+import { useT } from '../../i18n/LocaleContext';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const EMPTY = {
@@ -10,6 +11,7 @@ const EMPTY = {
 };
 
 export default function Expenses() {
+  const t = useT();
   const [items, setItems] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [banks, setBanks] = useState([]);
@@ -64,14 +66,14 @@ export default function Expenses() {
   return (
     <div className="p-6 md:p-7">
       <div className="mb-5 flex items-center justify-between">
-        <div><h1 className="page-title">Expenses</h1><p className="page-subtitle">Direct cash/card spend — auto-posts to the ledger.</p></div>
-        <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>{showForm ? 'Cancel' : '+ Record Expense'}</button>
+        <div><h1 className="page-title">{t('Expenses')}</h1><p className="page-subtitle">{t('Direct cash/card spend — auto-posts to the ledger.')}</p></div>
+        <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>{showForm ? t('Cancel') : t('+ Record Expense')}</button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        <div className="stat-card"><div className="stat-label">Net</div><div className="stat-value">AED {totalNet.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
-        <div className="stat-card"><div className="stat-label">VAT</div><div className="stat-value">AED {totalVat.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
-        <div className="stat-card"><div className="stat-label">Total spend</div><div className="stat-value">AED {totalGross.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
+        <div className="stat-card"><div className="stat-label">{t('Net')}</div><div className="stat-value">AED {totalNet.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
+        <div className="stat-card"><div className="stat-label">{t('VAT')}</div><div className="stat-value">AED {totalVat.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
+        <div className="stat-card"><div className="stat-label">{t('Total spend')}</div><div className="stat-value">AED {totalGross.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div></div>
       </div>
 
       {showForm && (
