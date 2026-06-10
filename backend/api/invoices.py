@@ -14,6 +14,11 @@ from backend.database.db import get_db
 from backend.database.models import Invoice, InvoiceLineItem, Client, Service, User
 from backend.services.auth_service import get_current_user, require_permission
 from backend.api.clients import scope_query as scope_clients
+from backend.api.accounting_purchases import (
+    _post_je as _acc_post_je,
+    _delete_je_for_source as _acc_delete_je,
+    _account_id_by_code as _acc_account_id,
+)
 
 router = APIRouter(prefix="/api/invoices", tags=["invoices"])
 
@@ -267,11 +272,32 @@ def send_invoice(
     inv = get_visible_invoice(db, current_user, invoice_id)
     if inv.status == "void":
         raise HTTPException(status_code=409, detail="Cannot send a void invoice")
+    was_draft = inv.status == "draft"
     if inv.status == "draft":
         inv.status = "sent"
         if not inv.issue_date:
             inv.issue_date = date.today().isoformat()
     inv.updated_at = datetime.utcnow()
+    if was_draft:
+        # Auto-post sales JE: DR Accounts Receivable, CR Service Revenue, CR VAT Payable.
+        # If the chart hasn't been bootstrapped, the helper silently no-ops.
+        ar_id = _acc_account_id(db, "1130")
+        rev_id = _acc_account_id(db, "4100")
+        vat_id = _acc_account_id(db, "2120")
+        if ar_id and rev_id:
+            lines = [
+                (ar_id, _round(inv.total), 0.0, f"Invoice {inv.invoice_number}"),
+                (rev_id, 0.0, _round(inv.subtotal),
+                 f"Revenue — {inv.client.company_name if inv.client else 'client'}"),
+            ]
+            if inv.vat_amount and vat_id:
+                lines.append((vat_id, 0.0, _round(inv.vat_amount), "Output VAT"))
+            _acc_post_je(
+                db, source_type="invoice", source_id=inv.id,
+                entry_date=inv.issue_date or date.today().isoformat(),
+                memo=f"Invoice {inv.invoice_number}", user_id=current_user.id,
+                lines=lines,
+            )
     db.commit()
     db.refresh(inv)
     return invoice_to_dict(inv)
@@ -286,6 +312,8 @@ def void_invoice(
     inv = get_visible_invoice(db, current_user, invoice_id)
     if inv.status == "paid" or inv.amount_paid > 0:
         raise HTTPException(status_code=409, detail="Cannot void an invoice with payments")
+    # Reverse the sales JE posted at /send time, if any.
+    _acc_delete_je(db, "invoice", inv.id)
     inv.status = "void"
     inv.updated_at = datetime.utcnow()
     db.commit()

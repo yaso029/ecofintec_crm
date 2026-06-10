@@ -13,6 +13,7 @@ export default function Reports() {
   const [pl, setPl] = useState(null);
   const [bs, setBs] = useState(null);
   const [cf, setCf] = useState(null);
+  const [vat, setVat] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const load = async () => {
@@ -24,9 +25,12 @@ export default function Reports() {
       } else if (tab === 'bs') {
         const { data } = await api.get(`/api/accounting/reports/balance-sheet?as_of=${end}`);
         setBs(data);
-      } else {
+      } else if (tab === 'cf') {
         const { data } = await api.get(`/api/accounting/reports/cash-flow?start=${start}&end=${end}`);
         setCf(data);
+      } else if (tab === 'vat') {
+        const { data } = await api.get(`/api/accounting/reports/vat-return?start=${start}&end=${end}`);
+        setVat(data);
       }
     } catch { /* ignore */ }
     setLoading(false);
@@ -45,6 +49,7 @@ export default function Reports() {
               { key: 'pl', label: 'Profit & Loss' },
               { key: 'bs', label: 'Balance Sheet' },
               { key: 'cf', label: 'Cash Flow' },
+              { key: 'vat', label: 'VAT Return' },
             ].map(t => (
               <button key={t.key} onClick={() => setTab(t.key)}
                 className={'btn btn-sm ' + (tab === t.key ? 'btn-primary' : 'btn-ghost')}>{t.label}</button>
@@ -110,6 +115,53 @@ export default function Reports() {
               </table>
             </>
           )}
+        </div>
+      )}
+
+      {tab === 'vat' && vat && (
+        <div className="card p-5 max-w-3xl">
+          <div className="text-sm text-[var(--text-muted)] mb-4">Period {vat.period.start} → {vat.period.end} · UAE FTA-style</div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            <div className="stat-card">
+              <div className="stat-label">Sales (taxable base)</div>
+              <div className="stat-value">AED {fmt(vat.sales_base)}</div>
+              <div className="text-[11px] text-[var(--text-muted)]">net revenue posted in period</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">Purchases (taxable base)</div>
+              <div className="stat-value">AED {fmt(vat.purchases_base)}</div>
+              <div className="text-[11px] text-[var(--text-muted)]">net expenses posted in period</div>
+            </div>
+          </div>
+
+          <table className="w-full text-sm mb-3">
+            <tbody>
+              <tr className="border-b border-[var(--border)]">
+                <td className="py-2">Output VAT (on sales)</td>
+                <td className="py-2 text-right font-mono">AED {fmt(vat.output_vat)}</td>
+              </tr>
+              <tr className="border-b border-[var(--border)]">
+                <td className="py-2">Input VAT (on purchases)</td>
+                <td className="py-2 text-right font-mono">− AED {fmt(vat.input_vat)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div className={'border-t border-[var(--border)] pt-3 flex items-center justify-between text-base font-bold ' +
+            (vat.direction === 'due_to_fta' ? 'text-red-700' : vat.direction === 'refundable' ? 'text-emerald-700 dark:text-emerald-400' : '')}>
+            <div>
+              {vat.direction === 'due_to_fta' && 'Net VAT due to FTA'}
+              {vat.direction === 'refundable' && 'Net VAT refundable'}
+              {vat.direction === 'nil' && 'Net VAT (nil)'}
+            </div>
+            <div className="font-mono">AED {fmt(Math.abs(vat.net_vat_payable))}</div>
+          </div>
+
+          <div className="mt-4 text-[12px] text-[var(--text-muted)]">
+            Output VAT comes from the <b>VAT Payable</b> account (2120) — credited when an invoice is sent.
+            Input VAT comes from the <b>VAT Recoverable</b> account (1140) — debited on expenses and supplier bills.
+          </div>
         </div>
       )}
     </div>

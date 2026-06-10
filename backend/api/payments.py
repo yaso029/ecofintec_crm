@@ -18,6 +18,10 @@ from backend.database.db import get_db
 from backend.database.models import Invoice, Payment, Client, User
 from backend.services.auth_service import require_permission
 from backend.api.invoices import get_visible_invoice, reconcile_status, invoice_to_dict, _round
+from backend.api.accounting_purchases import (
+    _post_je as _acc_post_je,
+    _account_id_by_code as _acc_account_id,
+)
 from backend.services import stripe_service
 
 router = APIRouter(prefix="/api/invoices", tags=["payments"])
@@ -43,6 +47,23 @@ def _apply_payment(db: Session, inv: Invoice, amount: float, method: str, refere
     inv.amount_paid = _round((inv.amount_paid or 0) + amount)
     reconcile_status(inv)
     inv.updated_at = datetime.utcnow()
+    db.flush()
+    # Auto-post receipt JE: DR Cash on Hand (1110), CR Accounts Receivable (1130).
+    # MVP: routes every receipt through "Cash on Hand". Users wanting bank-level
+    # detail can re-classify with a manual JE — bank_account_id will join Payment
+    # in a follow-up so we can target the correct asset directly.
+    cash_id = _acc_account_id(db, "1110")
+    ar_id = _acc_account_id(db, "1130")
+    if cash_id and ar_id:
+        _acc_post_je(
+            db, source_type="customer_receipt", source_id=pay.id,
+            entry_date=pay.paid_at or date.today().isoformat(),
+            memo=f"Receipt for {inv.invoice_number}", user_id=user_id,
+            lines=[
+                (cash_id, _round(amount), 0.0, reference or "Customer payment"),
+                (ar_id, 0.0, _round(amount), f"Settle {inv.invoice_number}"),
+            ],
+        )
     db.commit()
     db.refresh(inv)
     return pay

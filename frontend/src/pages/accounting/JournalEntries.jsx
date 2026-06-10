@@ -71,6 +71,8 @@ export default function JournalEntries() {
           <select className="input max-w-[180px]" value={sourceFilter} onChange={e => setSourceFilter(e.target.value)}>
             <option value="">All sources</option>
             <option value="manual">Manual</option>
+            <option value="invoice">Sales invoice</option>
+            <option value="customer_receipt">Customer receipt</option>
             <option value="expense">Expense</option>
             <option value="bill">Bill</option>
             <option value="supplier_payment">Supplier payment</option>

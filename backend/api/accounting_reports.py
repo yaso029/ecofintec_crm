@@ -227,6 +227,62 @@ def cash_flow(
     }
 
 
+# ─── VAT Return ───────────────────────────────────────────────────────────────
+# Output VAT (sales) = credit balance on "VAT Payable" (2120) over the period.
+# Input VAT (purchases) = debit balance on "VAT Recoverable" (1140) over the period.
+# Net VAT due = Output − Input (positive = pay to FTA; negative = recoverable).
+
+@router.get("/vat-return")
+def vat_return(
+    start: Optional[str] = Query(None, description="YYYY-MM-DD"),
+    end: Optional[str] = Query(None, description="YYYY-MM-DD"),
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    totals = _account_totals(db, start, end)
+
+    vat_payable = db.query(Account).filter(Account.code == "2120").first()
+    vat_recov = db.query(Account).filter(Account.code == "1140").first()
+
+    # Output VAT (liability — natural credit balance)
+    output_vat = 0.0
+    if vat_payable:
+        t = totals.get(vat_payable.id, {"debit": 0.0, "credit": 0.0})
+        output_vat = _round(float(t["credit"]) - float(t["debit"]))
+
+    # Input VAT (asset — natural debit balance)
+    input_vat = 0.0
+    if vat_recov:
+        t = totals.get(vat_recov.id, {"debit": 0.0, "credit": 0.0})
+        input_vat = _round(float(t["debit"]) - float(t["credit"]))
+
+    # Sales / purchases bases — sum lines on revenue / expense accounts within
+    # the same window, so the report shows the taxable bases alongside the VAT
+    # numbers (useful for FTA-style return preparation).
+    sales_base = 0.0
+    purchases_base = 0.0
+    for a in db.query(Account).all():
+        t = totals.get(a.id)
+        if not t:
+            continue
+        if a.type == "income":
+            sales_base += float(t["credit"]) - float(t["debit"])
+        elif a.type == "expense":
+            purchases_base += float(t["debit"]) - float(t["credit"])
+
+    net = _round(output_vat - input_vat)
+    return {
+        "period": {"start": start, "end": end},
+        "currency": "AED",
+        "sales_base": _round(sales_base),
+        "purchases_base": _round(purchases_base),
+        "output_vat": output_vat,
+        "input_vat": input_vat,
+        "net_vat_payable": net,
+        "direction": "due_to_fta" if net > 0 else ("refundable" if net < 0 else "nil"),
+    }
+
+
 # ─── Dashboard summary (for the Accounting module home page) ─────────────────
 
 @router.get("/dashboard")
